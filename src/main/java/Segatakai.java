@@ -4,6 +4,10 @@ public class Segatakai {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
+        //Storage for tasks
+        String[] tasks = new String[100];  //Array to store tasks
+        int taskCount = 0;                 // Counter for number of tasks
+
         //Greeting
         System.out.println("____________________________________________________________");
         System.out.println(" Hello! I'm SEGATAKAI");
@@ -17,11 +21,23 @@ public class Segatakai {
             if (input.equals("bye")) {
                 break;
             }
+            else if (input.equals("list")){
+                //Display the tasks
+                System.out.println("____________________________________________________________");
+                for (int i=0; i<taskCount; i++){
+                    System.out.println(" " + (i+1) + ". " + tasks[i]);
+                }
+                System.out.println("____________________________________________________________");
+            }
+            else{
+                //Add task to the list
+                tasks[taskCount] = input;
+                taskCount++;
 
-            //Echo the input back
-            System.out.println("____________________________________________________________");
-            System.out.println(" " + input);
-            System.out.println("____________________________________________________________");
+                System.out.println("____________________________________________________________");
+                System.out.println(" added: " + input);
+                System.out.println("____________________________________________________________");
+            }
         }
         //Goodbye message
         System.out.println("____________________________________________________________");
