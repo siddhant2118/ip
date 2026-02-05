@@ -63,7 +63,7 @@ public class Segatakai {
 
         // Loop to read commands
         while (true) {
-            String input = scanner.nextLine();
+            String input = scanner.nextLine().trim();
 
             if (input.equals("bye")) {
                 break;
@@ -103,14 +103,50 @@ public class Segatakai {
                     System.out.println("   " + tasks[index]);
                 }
                 System.out.println(LINE);
-            } else {
-                // Add task to the list
-                tasks[taskCount] = new Task(input);
+            } else if (input.startsWith("todo ")) {
+                // Create Todo task
+                String description = input.substring(5);
+                tasks[taskCount] = new Todo(description);
                 taskCount++;
 
                 System.out.println(LINE);
                 System.out.println(" " + getRandomMessage(ADD_MESSAGES));
-                System.out.println("   " + input);
+                System.out.println("   " + tasks[taskCount - 1]);
+                System.out.println(" Now you have " + taskCount + " task(s) in the list.");
+                System.out.println(LINE);
+            } else if (input.startsWith("deadline ")) {
+                // Create Deadline task: deadline <desc> /by <date>
+                String[] parts = input.substring(9).split(" /by ");
+                String description = parts[0];
+                String by = parts[1];
+                tasks[taskCount] = new Deadline(description, by);
+                taskCount++;
+
+                System.out.println(LINE);
+                System.out.println(" " + getRandomMessage(ADD_MESSAGES));
+                System.out.println("   " + tasks[taskCount - 1]);
+                System.out.println(" Now you have " + taskCount + " task(s) in the list.");
+                System.out.println(LINE);
+            } else if (input.startsWith("event ")) {
+                // Create Event task: event <desc> /from <start> /to <end>
+                String[] parts = input.substring(6).split(" /from ");
+                String description = parts[0];
+                String[] times = parts[1].split(" /to ");
+                String from = times[0];
+                String to = times[1];
+                tasks[taskCount] = new Event(description, from, to);
+                taskCount++;
+
+                System.out.println(LINE);
+                System.out.println(" " + getRandomMessage(ADD_MESSAGES));
+                System.out.println("   " + tasks[taskCount - 1]);
+                System.out.println(" Now you have " + taskCount + " task(s) in the list.");
+                System.out.println(LINE);
+            } else {
+                // Unknown command
+                System.out.println(LINE);
+                System.out.println(" Hmm, I don't understand that command.");
+                System.out.println(" Try: todo, deadline, event, list, mark, unmark, bye");
                 System.out.println(LINE);
             }
         }
