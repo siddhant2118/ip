@@ -2,6 +2,7 @@ package duke;
 
 import java.util.Random;
 import java.util.Scanner;
+import java.nio.file.Path;
 
 
 public class Segatakai {
@@ -42,7 +43,8 @@ public class Segatakai {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        TaskList taskList = new TaskList();
+        Storage storage = new Storage(Path.of("data", "duke.txt"));
+        TaskList taskList = loadTaskList(storage);
 
         printGreeting();
 
@@ -52,7 +54,7 @@ public class Segatakai {
                 break;
             }
             try {
-                handleCommand(input, taskList);
+                handleCommand(input, taskList, storage);
             } catch (DukeException e) {
                 printError(e.getMessage());
             }
@@ -80,35 +82,48 @@ public class Segatakai {
         System.out.println(LINE);
     }
 
-    private static void handleCommand(String input, TaskList taskList) throws DukeException {
+    private static TaskList loadTaskList(Storage storage) {
+        try {
+            return new TaskList(storage.load());
+        } catch (DukeException e) {
+            printError("Unable to load saved tasks: " + e.getMessage());
+            return new TaskList();
+        }
+    }
+
+    private static void saveTaskList(TaskList taskList, Storage storage) throws DukeException {
+        storage.save(taskList);
+    }
+
+    private static void handleCommand(String input, TaskList taskList, Storage storage) throws DukeException {
         if (input.equals("list")) {
             printList(taskList);
             return;
         }
         if (input.equals("mark") || input.startsWith("mark ")) {
-            handleMark(input, taskList);
+            handleMark(input, taskList, storage);
             return;
         }
         if (input.equals("unmark") || input.startsWith("unmark ")) {
-            handleUnmark(input, taskList);
+            handleUnmark(input, taskList, storage);
             return;
         }
         if (input.equals("todo") || input.startsWith("todo ")) {
-            handleAddTodo(input, taskList);
+            handleAddTodo(input, taskList, storage);
             return;
         }
         if (input.equals("deadline") || input.startsWith("deadline ")) {
-            handleAddDeadline(input, taskList);
+            handleAddDeadline(input, taskList, storage);
             return;
         }
         if (input.equals("event") || input.startsWith("event ")) {
-            handleAddEvent(input, taskList);
+            handleAddEvent(input, taskList, storage);
             return;
         }
         throw new DukeException(UNKNOWN_COMMAND_MSG + "\n " + COMMAND_HINTS);
     }
 
-    private static void handleMark(String input, TaskList taskList) throws DukeException {
+    private static void handleMark(String input, TaskList taskList, Storage storage) throws DukeException {
         int index = parseTaskIndex(input, "mark", taskList.size());
         System.out.println(LINE);
         if (taskList.getTask(index).isDone()) {
@@ -116,13 +131,14 @@ public class Segatakai {
             System.out.println("   " + taskList.getTask(index));
         } else {
             taskList.getTask(index).markAsDone();
+            saveTaskList(taskList, storage);
             System.out.println(" " + getRandomMessage(MARK_MESSAGES));
             System.out.println("   " + taskList.getTask(index));
         }
         System.out.println(LINE);
     }
 
-    private static void handleUnmark(String input, TaskList taskList) throws DukeException {
+    private static void handleUnmark(String input, TaskList taskList, Storage storage) throws DukeException {
         int index = parseTaskIndex(input, "unmark", taskList.size());
         System.out.println(LINE);
         if (!taskList.getTask(index).isDone()) {
@@ -130,22 +146,24 @@ public class Segatakai {
             System.out.println("   " + taskList.getTask(index));
         } else {
             taskList.getTask(index).markAsNotDone();
+            saveTaskList(taskList, storage);
             System.out.println(" " + getRandomMessage(UNMARK_MESSAGES));
             System.out.println("   " + taskList.getTask(index));
         }
         System.out.println(LINE);
     }
 
-    private static void handleAddTodo(String input, TaskList taskList) throws DukeException {
+    private static void handleAddTodo(String input, TaskList taskList, Storage storage) throws DukeException {
         String description = input.substring("todo".length()).trim();
         if (description.isEmpty()) {
             throw new DukeException("The description of a todo cannot be empty.");
         }
         taskList.addTask(new Todo(description));
+        saveTaskList(taskList, storage);
         printAddConfirmation(taskList);
     }
 
-    private static void handleAddDeadline(String input, TaskList taskList) throws DukeException {
+    private static void handleAddDeadline(String input, TaskList taskList, Storage storage) throws DukeException {
         String commandBody = input.substring("deadline".length()).trim();
         if (commandBody.isEmpty()) {
             throw new DukeException("The description of a deadline cannot be empty.");
@@ -163,10 +181,11 @@ public class Segatakai {
             throw new DukeException("The deadline date/time cannot be empty.");
         }
         taskList.addTask(new Deadline(description, by));
+        saveTaskList(taskList, storage);
         printAddConfirmation(taskList);
     }
 
-    private static void handleAddEvent(String input, TaskList taskList) throws DukeException {
+    private static void handleAddEvent(String input, TaskList taskList, Storage storage) throws DukeException {
         String commandBody = input.substring("event".length()).trim();
         if (commandBody.isEmpty()) {
             throw new DukeException("The description of an event cannot be empty.");
@@ -189,6 +208,7 @@ public class Segatakai {
             throw new DukeException("The event start/end time cannot be empty.");
         }
         taskList.addTask(new Event(description, from, to));
+        saveTaskList(taskList, storage);
         printAddConfirmation(taskList);
     }
 
@@ -216,6 +236,10 @@ public class Segatakai {
     }
 
     private static int parseTaskIndex(String input, String commandWord, int taskListSize) throws DukeException {
+        if (taskListSize == 0) {
+            throw new DukeException("There are no tasks in the list yet.");
+        }
+
         String numberText = input.substring(commandWord.length()).trim();
         if (numberText.isEmpty()) {
             throw new DukeException("Please provide a task number for '" + commandWord + "'.");
