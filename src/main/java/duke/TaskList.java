@@ -38,6 +38,10 @@ public class TaskList {
         return tasks.get(index);
     }
 
+    public Task deleteTask(int index) {
+        return tasks.remove(index);
+    }
+
     public List<Task> getTasks() {
         return new ArrayList<>(tasks);
     }

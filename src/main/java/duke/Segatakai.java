@@ -32,7 +32,7 @@ public class Segatakai {
         "See you later! Go conquer the world!"
     };
     private static final String UNKNOWN_COMMAND_MSG = "I'm sorry, but I don't know what that means :-(";
-    private static final String COMMAND_HINTS = "Try: todo, deadline, event, list, mark, unmark, bye";
+    private static final String COMMAND_HINTS = "Try: todo, deadline, event, list, mark, unmark, delete, bye";
 
     private static final Random random = new Random();
 
@@ -93,6 +93,10 @@ public class Segatakai {
             handleUnmark(input, taskList);
             return;
         }
+        if (input.equals("delete") || input.startsWith("delete ")) {
+            handleDelete(input, taskList);
+            return;
+        }
         if (input.equals("todo") || input.startsWith("todo ")) {
             handleAddTodo(input, taskList);
             return;
@@ -119,6 +123,16 @@ public class Segatakai {
             System.out.println(" " + getRandomMessage(MARK_MESSAGES));
             System.out.println("   " + taskList.getTask(index));
         }
+        System.out.println(LINE);
+    }
+
+    private static void handleDelete(String input, TaskList taskList) throws DukeException {
+        int index = parseTaskIndex(input, "delete", taskList.size());
+        Task deletedTask = taskList.deleteTask(index);
+        System.out.println(LINE);
+        System.out.println(" Noted. I've removed this task:");
+        System.out.println("   " + deletedTask);
+        System.out.println(" Now you have " + taskList.size() + " task(s) in the list.");
         System.out.println(LINE);
     }
 
@@ -216,6 +230,10 @@ public class Segatakai {
     }
 
     private static int parseTaskIndex(String input, String commandWord, int taskListSize) throws DukeException {
+        if (taskListSize == 0) {
+            throw new DukeException("There are no tasks in the list yet.");
+        }
+
         String numberText = input.substring(commandWord.length()).trim();
         if (numberText.isEmpty()) {
             throw new DukeException("Please provide a task number for '" + commandWord + "'.");
