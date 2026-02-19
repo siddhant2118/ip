@@ -1,10 +1,20 @@
+package duke;
+
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Manages a list of tasks and provides methods to add, list, mark, and unmark tasks.
  */
 public class TaskList {
     private final ArrayList<Task> tasks = new ArrayList<>();
+
+    public TaskList() {
+    }
+
+    public TaskList(List<Task> tasks) {
+        this.tasks.addAll(tasks);
+    }
 
     /**
      * Adds a task to the list.
@@ -26,6 +36,10 @@ public class TaskList {
      */
     public Task getTask(int index) {
         return tasks.get(index);
+    }
+
+    public List<Task> getTasks() {
+        return new ArrayList<>(tasks);
     }
 
     /**

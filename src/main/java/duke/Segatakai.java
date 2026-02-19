@@ -1,12 +1,11 @@
-import java.util.Scanner;
+package duke;
+
 import java.util.Random;
+import java.util.Scanner;
 
 
 public class Segatakai {
-    // Custom separator
     private static final String LINE = "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
-
-    // Random messages arrays
     private static final String[] GREETINGS = {
         "Ready to crush some tasks today?",
         "Let's get things done!",
@@ -32,16 +31,11 @@ public class Segatakai {
         "Signing off. Stay productive!",
         "See you later! Go conquer the world!"
     };
-    private static final int INVALID_INDEX = -1;
-    private static final int COMMAND_INDEX_OFFSET = 1;
-    private static final String UNKNOWN_COMMAND_MSG = " Hmm, I don't understand that command.";
-    private static final String COMMAND_HINTS = " Try: todo, deadline, event, list, mark, unmark, bye";
+    private static final String UNKNOWN_COMMAND_MSG = "I'm sorry, but I don't know what that means :-(";
+    private static final String COMMAND_HINTS = "Try: todo, deadline, event, list, mark, unmark, bye";
 
     private static final Random random = new Random();
 
-    /**
-     * Returns a random message from the given array.
-     */
     private static String getRandomMessage(String[] messages) {
         return messages[random.nextInt(messages.length)];
     }
@@ -57,31 +51,11 @@ public class Segatakai {
             if (input.equals("bye")) {
                 break;
             }
-            if (input.equals("list")) {
-                printList(taskList);
-                continue;
+            try {
+                handleCommand(input, taskList);
+            } catch (DukeException e) {
+                printError(e.getMessage());
             }
-            if (input.startsWith("mark ")) {
-                handleMark(input, taskList);
-                continue;
-            }
-            if (input.startsWith("unmark ")) {
-                handleUnmark(input, taskList);
-                continue;
-            }
-            if (input.startsWith("todo ")) {
-                handleAddTodo(input, taskList);
-                continue;
-            }
-            if (input.startsWith("deadline ")) {
-                handleAddDeadline(input, taskList);
-                continue;
-            }
-            if (input.startsWith("event ")) {
-                handleAddEvent(input, taskList);
-                continue;
-            }
-            printUnknownCommand();
         }
         printGoodbye(taskList.size());
         scanner.close();
@@ -106,12 +80,38 @@ public class Segatakai {
         System.out.println(LINE);
     }
 
-    private static void handleMark(String input, TaskList taskList) {
-        int index = parseIndex(input, "mark ");
+    private static void handleCommand(String input, TaskList taskList) throws DukeException {
+        if (input.equals("list")) {
+            printList(taskList);
+            return;
+        }
+        if (input.equals("mark") || input.startsWith("mark ")) {
+            handleMark(input, taskList);
+            return;
+        }
+        if (input.equals("unmark") || input.startsWith("unmark ")) {
+            handleUnmark(input, taskList);
+            return;
+        }
+        if (input.equals("todo") || input.startsWith("todo ")) {
+            handleAddTodo(input, taskList);
+            return;
+        }
+        if (input.equals("deadline") || input.startsWith("deadline ")) {
+            handleAddDeadline(input, taskList);
+            return;
+        }
+        if (input.equals("event") || input.startsWith("event ")) {
+            handleAddEvent(input, taskList);
+            return;
+        }
+        throw new DukeException(UNKNOWN_COMMAND_MSG + "\n " + COMMAND_HINTS);
+    }
+
+    private static void handleMark(String input, TaskList taskList) throws DukeException {
+        int index = parseTaskIndex(input, "mark", taskList.size());
         System.out.println(LINE);
-        if (!isValidIndex(index, taskList.size())) {
-            System.out.println(" Invalid task number.");
-        } else if (taskList.getTask(index).isDone()) {
+        if (taskList.getTask(index).isDone()) {
             System.out.println(" Hey, this task is already done!");
             System.out.println("   " + taskList.getTask(index));
         } else {
@@ -122,12 +122,10 @@ public class Segatakai {
         System.out.println(LINE);
     }
 
-    private static void handleUnmark(String input, TaskList taskList) {
-        int index = parseIndex(input, "unmark ");
+    private static void handleUnmark(String input, TaskList taskList) throws DukeException {
+        int index = parseTaskIndex(input, "unmark", taskList.size());
         System.out.println(LINE);
-        if (!isValidIndex(index, taskList.size())) {
-            System.out.println(" Invalid task number.");
-        } else if (!taskList.getTask(index).isDone()) {
+        if (!taskList.getTask(index).isDone()) {
             System.out.println(" Uhh, this task isn't marked as done yet!");
             System.out.println("   " + taskList.getTask(index));
         } else {
@@ -138,44 +136,58 @@ public class Segatakai {
         System.out.println(LINE);
     }
 
-    private static void handleAddTodo(String input, TaskList taskList) {
-        String description = input.substring(5).trim();
+    private static void handleAddTodo(String input, TaskList taskList) throws DukeException {
+        String description = input.substring("todo".length()).trim();
+        if (description.isEmpty()) {
+            throw new DukeException("The description of a todo cannot be empty.");
+        }
         taskList.addTask(new Todo(description));
         printAddConfirmation(taskList);
     }
 
-    private static void handleAddDeadline(String input, TaskList taskList) {
-        String[] parts = input.substring(9).split(" /by ", 2);
+    private static void handleAddDeadline(String input, TaskList taskList) throws DukeException {
+        String commandBody = input.substring("deadline".length()).trim();
+        if (commandBody.isEmpty()) {
+            throw new DukeException("The description of a deadline cannot be empty.");
+        }
+        String[] parts = commandBody.split(" /by ", 2);
         if (parts.length < 2) {
-            System.out.println(LINE);
-            System.out.println(" Invalid deadline format. Use: deadline <desc> /by <date>");
-            System.out.println(LINE);
-            return;
+            throw new DukeException("Invalid deadline format. Use: deadline <desc> /by <date>");
         }
         String description = parts[0].trim();
         String by = parts[1].trim();
+        if (description.isEmpty()) {
+            throw new DukeException("The description of a deadline cannot be empty.");
+        }
+        if (by.isEmpty()) {
+            throw new DukeException("The deadline date/time cannot be empty.");
+        }
         taskList.addTask(new Deadline(description, by));
         printAddConfirmation(taskList);
     }
 
-    private static void handleAddEvent(String input, TaskList taskList) {
-        String[] parts = input.substring(6).split(" /from ", 2);
+    private static void handleAddEvent(String input, TaskList taskList) throws DukeException {
+        String commandBody = input.substring("event".length()).trim();
+        if (commandBody.isEmpty()) {
+            throw new DukeException("The description of an event cannot be empty.");
+        }
+        String[] parts = commandBody.split(" /from ", 2);
         if (parts.length < 2) {
-            System.out.println(LINE);
-            System.out.println(" Invalid event format. Use: event <desc> /from <start> /to <end>");
-            System.out.println(LINE);
-            return;
+            throw new DukeException("Invalid event format. Use: event <desc> /from <start> /to <end>");
         }
         String description = parts[0].trim();
         String[] times = parts[1].split(" /to ", 2);
         if (times.length < 2) {
-            System.out.println(LINE);
-            System.out.println(" Invalid event format. Use: event <desc> /from <start> /to <end>");
-            System.out.println(LINE);
-            return;
+            throw new DukeException("Invalid event format. Use: event <desc> /from <start> /to <end>");
         }
         String from = times[0].trim();
         String to = times[1].trim();
+        if (description.isEmpty()) {
+            throw new DukeException("The description of an event cannot be empty.");
+        }
+        if (from.isEmpty() || to.isEmpty()) {
+            throw new DukeException("The event start/end time cannot be empty.");
+        }
         taskList.addTask(new Event(description, from, to));
         printAddConfirmation(taskList);
     }
@@ -188,10 +200,9 @@ public class Segatakai {
         System.out.println(LINE);
     }
 
-    private static void printUnknownCommand() {
+    private static void printError(String message) {
         System.out.println(LINE);
-        System.out.println(UNKNOWN_COMMAND_MSG);
-        System.out.println(COMMAND_HINTS);
+        System.out.println(" OOPS!!! " + message);
         System.out.println(LINE);
     }
 
@@ -204,15 +215,22 @@ public class Segatakai {
         System.out.println(LINE);
     }
 
-    private static int parseIndex(String input, String commandPrefix) {
-        try {
-            return Integer.parseInt(input.substring(commandPrefix.length()).trim()) - COMMAND_INDEX_OFFSET;
-        } catch (NumberFormatException e) {
-            return INVALID_INDEX;
+    private static int parseTaskIndex(String input, String commandWord, int taskListSize) throws DukeException {
+        String numberText = input.substring(commandWord.length()).trim();
+        if (numberText.isEmpty()) {
+            throw new DukeException("Please provide a task number for '" + commandWord + "'.");
         }
-    }
 
-    private static boolean isValidIndex(int index, int size) {
-        return index >= 0 && index < size;
+        int taskNumber;
+        try {
+            taskNumber = Integer.parseInt(numberText);
+        } catch (NumberFormatException e) {
+            throw new DukeException("Task number must be an integer.");
+        }
+
+        if (taskNumber < 1 || taskNumber > taskListSize) {
+            throw new DukeException("Task number must be between 1 and " + taskListSize + ".");
+        }
+        return taskNumber - 1;
     }
 }

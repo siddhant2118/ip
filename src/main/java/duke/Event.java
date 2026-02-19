@@ -1,3 +1,5 @@
+package duke;
+
 public class Event extends Task {
 
     protected String from;
@@ -17,5 +19,10 @@ public class Event extends Task {
     @Override
     public String toString() {
         return "[E][" + getStatusIcon() + "] " + description + " (from: " + from + " to: " + to + ")";
+    }
+
+    @Override
+    public String toStorageString() {
+        return getTypeIcon() + " | " + (isDone ? "1" : "0") + " | " + description + " | " + from + " | " + to;
     }
 }
