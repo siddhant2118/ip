@@ -1,3 +1,5 @@
+package duke;
+
 public class Deadline extends Task {
 
     protected String by;
@@ -15,5 +17,10 @@ public class Deadline extends Task {
     @Override
     public String toString() {
         return "[D][" + getStatusIcon() + "] " + description + " (by: " + by + ")";
+    }
+
+    @Override
+    public String toStorageString() {
+        return getTypeIcon() + " | " + (isDone ? "1" : "0") + " | " + description + " | " + by;
     }
 }

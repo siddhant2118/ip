@@ -1,5 +1,7 @@
+package duke;
+
 public class Task {
-    protected String description;
+    protected final String description;
     protected boolean isDone;
 
     public Task(String description) {
@@ -19,13 +21,22 @@ public class Task {
         this.isDone = false;
     }
 
-    public String getStatusIcon() {
-        return (isDone ? "X" : " ");
+    public void setDone(boolean isDone) {
+        this.isDone = isDone;
     }
 
     public String getTypeIcon() {
-        return " "; 
+        return " ";
     }
+
+    public String getStatusIcon() {
+        return isDone ? "X" : " ";
+    }
+
+    public String toStorageString() {
+        return getTypeIcon() + " | " + (isDone ? "1" : "0") + " | " + description;
+    }
+
     @Override
     public String toString() {
         return "[" + getTypeIcon() + "][" + getStatusIcon() + "] " + description;
