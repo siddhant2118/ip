@@ -5,7 +5,7 @@ import java.time.format.DateTimeParseException;
 
 public class Parser {
     private static final String UNKNOWN_COMMAND_MSG = "I'm sorry, but I don't know what that means :-(";
-    private static final String COMMAND_HINTS = "Try: todo, deadline, event, list, mark, unmark, delete, bye";
+    private static final String COMMAND_HINTS = "Try: todo, deadline, event, list, mark, unmark, delete, find, bye";
 
     public Command parse(String input) throws DukeException {
         if (input.equals("bye")) {
@@ -31,6 +31,9 @@ public class Parser {
         }
         if (input.equals("event") || input.startsWith("event ")) {
             return parseEvent(input);
+        }
+        if (input.equals("find") || input.startsWith("find ")) {
+            return Command.forFind(parseFindKeyword(input));
         }
         throw new DukeException(UNKNOWN_COMMAND_MSG + "\n " + COMMAND_HINTS);
     }
@@ -104,5 +107,13 @@ public class Parser {
             throw new DukeException("The event start/end time cannot be empty.");
         }
         return Command.forEvent(description, from, to);
+    }
+
+    private String parseFindKeyword(String input) throws DukeException {
+        String keyword = input.substring("find".length()).trim();
+        if (keyword.isEmpty()) {
+            throw new DukeException("Please provide a keyword for find.");
+        }
+        return keyword;
     }
 }

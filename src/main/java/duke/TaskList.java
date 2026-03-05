@@ -59,4 +59,20 @@ public class TaskList {
         }
         return sb.toString().trim();
     }
+
+    public String findTasks(String keyword) {
+        String lowerKeyword = keyword.toLowerCase();
+        StringBuilder sb = new StringBuilder(" Here are the matching tasks in your list:\n");
+        int displayedIndex = 0;
+        for (Task task : tasks) {
+            if (task.getDescription().toLowerCase().contains(lowerKeyword)) {
+                displayedIndex++;
+                sb.append(" ").append(displayedIndex).append(".").append(task).append("\n");
+            }
+        }
+        if (displayedIndex == 0) {
+            return " No matching tasks found.";
+        }
+        return sb.toString().trim();
+    }
 }

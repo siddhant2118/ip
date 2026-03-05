@@ -58,6 +58,12 @@ public class Ui {
         System.out.println(LINE);
     }
 
+    public void showFindResults(String results) {
+        System.out.println(LINE);
+        System.out.println(results);
+        System.out.println(LINE);
+    }
+
     public void showAddConfirmation(Task task, int size) {
         System.out.println(LINE);
         System.out.println(" " + getRandomMessage(ADD_MESSAGES));
