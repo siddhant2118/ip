@@ -1,6 +1,8 @@
 package duke;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -76,7 +78,11 @@ public class Storage {
             if (parts.length != 4) {
                 throw new DukeException("Corrupted data at line " + lineNumber + ": " + line);
             }
-            task = new Deadline(description, parts[3]);
+            try {
+                task = new Deadline(description, LocalDate.parse(parts[3]));
+            } catch (DateTimeParseException e) {
+                throw new DukeException("Corrupted data at line " + lineNumber + ": " + line);
+            }
             break;
         case "E":
             if (parts.length != 5) {

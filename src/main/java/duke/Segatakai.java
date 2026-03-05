@@ -61,7 +61,7 @@ public class Segatakai {
             addTask(new Todo(command.getDescription()));
             break;
         case DEADLINE:
-            addTask(new Deadline(command.getDescription(), command.getBy()));
+            addTask(new Deadline(command.getDescription(), command.getByDate()));
             break;
         case EVENT:
             addTask(new Event(command.getDescription(), command.getFrom(), command.getTo()));
