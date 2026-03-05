@@ -1,5 +1,8 @@
 package duke;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+
 public class Parser {
     private static final String UNKNOWN_COMMAND_MSG = "I'm sorry, but I don't know what that means :-(";
     private static final String COMMAND_HINTS = "Try: todo, deadline, event, list, mark, unmark, delete, bye";
@@ -69,7 +72,13 @@ public class Parser {
         if (by.isEmpty()) {
             throw new DukeException("The deadline date/time cannot be empty.");
         }
-        return Command.forDeadline(description, by);
+        LocalDate byDate;
+        try {
+            byDate = LocalDate.parse(by);
+        } catch (DateTimeParseException e) {
+            throw new DukeException("Deadline date must be in yyyy-MM-dd format.");
+        }
+        return Command.forDeadline(description, byDate);
     }
 
     private Command parseEvent(String input) throws DukeException {

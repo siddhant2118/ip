@@ -1,20 +1,22 @@
 package duke;
 
+import java.time.LocalDate;
+
 public class Command {
     private final CommandType type;
     private final int taskNumber;
     private final String description;
-    private final String by;
+    private final LocalDate byDate;
     private final String from;
     private final String to;
     private final String keyword;
 
     private Command(CommandType type, int taskNumber, String description,
-                    String by, String from, String to, String keyword) {
+                    LocalDate byDate, String from, String to, String keyword) {
         this.type = type;
         this.taskNumber = taskNumber;
         this.description = description;
-        this.by = by;
+        this.byDate = byDate;
         this.from = from;
         this.to = to;
         this.keyword = keyword;
@@ -32,8 +34,8 @@ public class Command {
         return new Command(CommandType.TODO, -1, description, null, null, null, null);
     }
 
-    public static Command forDeadline(String description, String by) {
-        return new Command(CommandType.DEADLINE, -1, description, by, null, null, null);
+    public static Command forDeadline(String description, LocalDate byDate) {
+        return new Command(CommandType.DEADLINE, -1, description, byDate, null, null, null);
     }
 
     public static Command forEvent(String description, String from, String to) {
@@ -56,8 +58,8 @@ public class Command {
         return description;
     }
 
-    public String getBy() {
-        return by;
+    public LocalDate getByDate() {
+        return byDate;
     }
 
     public String getFrom() {
