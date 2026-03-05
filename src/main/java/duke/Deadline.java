@@ -3,12 +3,18 @@ package duke;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Represents a deadline task.
+ */
 public class Deadline extends Task {
     private static final DateTimeFormatter DISPLAY_DATE_FORMAT =
             DateTimeFormatter.ofPattern("MMM dd yyyy");
 
     protected LocalDate by;
 
+    /**
+     * Creates a deadline task.
+     */
     public Deadline(String description, LocalDate by) {
         super(description);
         this.by = by;

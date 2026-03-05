@@ -9,13 +9,25 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Handles loading and saving tasks from/to disk.
+ */
 public class Storage {
     private final Path filePath;
 
+    /**
+     * Creates a storage instance for a file path.
+     */
     public Storage(Path filePath) {
         this.filePath = filePath;
     }
 
+    /**
+     * Loads tasks from disk.
+     *
+     * @return Loaded tasks (empty if file does not exist).
+     * @throws DukeException If the file cannot be read or is corrupted.
+     */
     public List<Task> load() throws DukeException {
         if (!Files.exists(filePath)) {
             return new ArrayList<>();
@@ -39,6 +51,11 @@ public class Storage {
         return tasks;
     }
 
+    /**
+     * Saves all tasks to disk.
+     *
+     * @throws DukeException If writing fails.
+     */
     public void save(TaskList taskList) throws DukeException {
         try {
             Path parent = filePath.getParent();

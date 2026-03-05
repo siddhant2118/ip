@@ -3,10 +3,20 @@ package duke;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
+/**
+ * Parses user input text into structured commands.
+ */
 public class Parser {
     private static final String UNKNOWN_COMMAND_MSG = "I'm sorry, but I don't know what that means :-(";
     private static final String COMMAND_HINTS = "Try: todo, deadline, event, list, mark, unmark, delete, find, bye";
 
+    /**
+     * Parses one line of user input into a command.
+     *
+     * @param input Raw command line.
+     * @return Parsed command object.
+     * @throws DukeException If the command is invalid.
+     */
     public Command parse(String input) throws DukeException {
         if (input.equals("bye")) {
             return Command.ofType(CommandType.BYE);

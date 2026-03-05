@@ -9,9 +9,17 @@ import java.util.List;
 public class TaskList {
     private final ArrayList<Task> tasks = new ArrayList<>();
 
+    /**
+     * Creates an empty task list.
+     */
     public TaskList() {
     }
 
+    /**
+     * Creates a task list from existing tasks.
+     *
+     * @param tasks Existing tasks to copy into this list.
+     */
     public TaskList(List<Task> tasks) {
         this.tasks.addAll(tasks);
     }
@@ -38,10 +46,16 @@ public class TaskList {
         return tasks.get(index);
     }
 
+    /**
+     * Deletes and returns the task at the given index.
+     */
     public Task deleteTask(int index) {
         return tasks.remove(index);
     }
 
+    /**
+     * Returns a defensive copy of all tasks.
+     */
     public List<Task> getTasks() {
         return new ArrayList<>(tasks);
     }
@@ -60,6 +74,9 @@ public class TaskList {
         return sb.toString().trim();
     }
 
+    /**
+     * Finds tasks whose descriptions contain the given keyword.
+     */
     public String findTasks(String keyword) {
         String lowerKeyword = keyword.toLowerCase();
         StringBuilder sb = new StringBuilder(" Here are the matching tasks in your list:\n");
