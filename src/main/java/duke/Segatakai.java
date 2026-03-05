@@ -66,6 +66,9 @@ public class Segatakai {
         case EVENT:
             addTask(new Event(command.getDescription(), command.getFrom(), command.getTo()));
             break;
+        case FIND:
+            ui.showFindResults(tasks.findTasks(command.getKeyword()));
+            break;
         default:
             throw new DukeException("Unsupported command.");
         }
