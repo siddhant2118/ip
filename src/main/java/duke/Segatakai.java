@@ -2,12 +2,20 @@ package duke;
 
 import java.nio.file.Path;
 
+/**
+ * Main chatbot application class.
+ */
 public class Segatakai {
     private final Storage storage;
     private final Ui ui;
     private final Parser parser;
     private TaskList tasks;
 
+    /**
+     * Creates the app and initializes storage, UI and parser.
+     *
+     * @param filePath Relative path to storage file.
+     */
     public Segatakai(String filePath) {
         this.ui = new Ui();
         this.parser = new Parser();
@@ -24,6 +32,9 @@ public class Segatakai {
         }
     }
 
+    /**
+     * Starts the chatbot command loop.
+     */
     public void run() {
         ui.showWelcome();
         boolean isExit = false;
@@ -118,6 +129,9 @@ public class Segatakai {
         return taskNumber - 1;
     }
 
+    /**
+     * Application entry point.
+     */
     public static void main(String[] args) {
         new Segatakai("data/duke.txt").run();
     }
